@@ -2,11 +2,26 @@
 
 ## 1. System Design
 
+- a user should be able to schedule tasks based on a timeline
+- a user should be able to add new tasks
+- a user should be able to edit the tasks.
 **a. Initial design**
 
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
-
+ - For a pet care app like PawPal, objects might be:
+    - Pet: 
+        - Attributes: name, specie, age, weight, health_notes
+        - Methods: getCareplan(), updateInfo()
+    - Owner:
+        - Attributes: name, email, time_available_per_day
+        - Methods: addPet(), removePet(), getSchedule()
+    - Schedule: 
+        - Attributes: date, owner, pet, task_list, total_duration
+        - Methods: generate(), display(), exportPlane()
+    - Task:
+        - Attributes: name, category, duration_minutes, priority, frequency
+        - Methods: edit(), markComplete()
 **b. Design changes**
 
 - Did your design change during implementation?
