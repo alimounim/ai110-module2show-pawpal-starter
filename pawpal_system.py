@@ -12,11 +12,13 @@ class Task:
     completed: bool = False
 
     def edit(self, **kwargs) -> None:
+        """Update one or more task fields by keyword argument."""
         for key, value in kwargs.items():
             if hasattr(self, key):
                 setattr(self, key, value)
 
     def mark_complete(self) -> None:
+        """Mark this task as completed."""
         self.completed = True
 
 
@@ -30,9 +32,11 @@ class Pet:
     tasks: list[Task] = field(default_factory=list)
 
     def add_task(self, task: Task) -> None:
+        """Append a task to this pet's task list."""
         self.tasks.append(task)
 
     def get_careplan(self) -> dict:
+        """Return a dictionary summary of this pet's info and all its tasks."""
         return {
             "pet": self.name,
             "specie": self.specie,
@@ -53,6 +57,7 @@ class Pet:
         }
 
     def update_info(self, **kwargs) -> None:
+        """Update one or more pet fields by keyword argument."""
         for key, value in kwargs.items():
             if hasattr(self, key):
                 setattr(self, key, value)
@@ -66,9 +71,11 @@ class Owner:
         self.pets: list[Pet] = []
 
     def add_pet(self, pet: Pet) -> None:
+        """Add a pet to this owner's pet list."""
         self.pets.append(pet)
 
     def remove_pet(self, pet: Pet) -> None:
+        """Remove a pet from this owner's pet list."""
         self.pets.remove(pet)
 
     def get_all_tasks(self) -> list[tuple[Pet, Task]]:
@@ -83,27 +90,35 @@ class Scheduler:
         self.owner = owner
 
     def get_all_tasks(self) -> list[tuple[Pet, Task]]:
+        """Return all (pet, task) pairs across every pet the owner has."""
         return self.owner.get_all_tasks()
 
     def get_tasks_by_priority(self, priority: str) -> list[tuple[Pet, Task]]:
+        """Return all (pet, task) pairs whose task matches the given priority."""
         return [(pet, task) for pet, task in self.get_all_tasks() if task.priority == priority]
 
     def get_tasks_by_frequency(self, frequency: str) -> list[tuple[Pet, Task]]:
+        """Return all (pet, task) pairs whose task matches the given frequency."""
         return [(pet, task) for pet, task in self.get_all_tasks() if task.frequency == frequency]
 
     def get_pending_tasks(self) -> list[tuple[Pet, Task]]:
+        """Return all (pet, task) pairs where the task has not yet been completed."""
         return [(pet, task) for pet, task in self.get_all_tasks() if not task.completed]
 
     def get_completed_tasks(self) -> list[tuple[Pet, Task]]:
+        """Return all (pet, task) pairs where the task has been completed."""
         return [(pet, task) for pet, task in self.get_all_tasks() if task.completed]
 
     def total_daily_minutes(self) -> float:
+        """Sum the duration of all daily-frequency tasks across all pets."""
         return sum(task.duration_minutes for _, task in self.get_tasks_by_frequency("daily"))
 
     def fits_in_schedule(self) -> bool:
+        """Return True if total daily task time fits within the owner's available hours."""
         return self.total_daily_minutes() <= self.owner.time_available_per_day * 60
 
     def display_schedule(self) -> None:
+        """Print all pending tasks and daily time usage to the console."""
         print(f"\n=== Schedule for {self.owner.name} ({date.today()}) ===")
         for pet, task in self.get_pending_tasks():
             status = "[x]" if task.completed else "[ ]"
