@@ -1,20 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
-
-
-@dataclass
-class Pet:
-    name: str
-    specie: str
-    age: int
-    weight: float
-    health_notes: str = ""
-
-    def get_careplan(self) -> dict:
-        pass
-
-    def update_info(self, **kwargs) -> None:
-        pass
 
 
 @dataclass
@@ -27,10 +12,50 @@ class Task:
     completed: bool = False
 
     def edit(self, **kwargs) -> None:
-        pass
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
 
     def mark_complete(self) -> None:
-        pass
+        self.completed = True
+
+
+@dataclass
+class Pet:
+    name: str
+    specie: str
+    age: int
+    weight: float
+    health_notes: str = ""
+    tasks: list[Task] = field(default_factory=list)
+
+    def add_task(self, task: Task) -> None:
+        self.tasks.append(task)
+
+    def get_careplan(self) -> dict:
+        return {
+            "pet": self.name,
+            "specie": self.specie,
+            "age": self.age,
+            "weight": self.weight,
+            "health_notes": self.health_notes,
+            "tasks": [
+                {
+                    "name": t.name,
+                    "category": t.category,
+                    "duration_minutes": t.duration_minutes,
+                    "priority": t.priority,
+                    "frequency": t.frequency,
+                    "completed": t.completed,
+                }
+                for t in self.tasks
+            ],
+        }
+
+    def update_info(self, **kwargs) -> None:
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
 
 
 class Owner:
@@ -39,31 +64,50 @@ class Owner:
         self.email = email
         self.time_available_per_day = time_available_per_day
         self.pets: list[Pet] = []
-        self.schedules: list["Schedule"] = []
 
     def add_pet(self, pet: Pet) -> None:
-        pass
+        self.pets.append(pet)
 
     def remove_pet(self, pet: Pet) -> None:
-        pass
+        self.pets.remove(pet)
 
-    def get_schedule(self) -> list["Schedule"]:
-        pass
+    def get_all_tasks(self) -> list[tuple[Pet, Task]]:
+        """Return all tasks across all pets as (pet, task) pairs."""
+        return [(pet, task) for pet in self.pets for task in pet.tasks]
 
 
-class Schedule:
-    def __init__(self, date: date, owner: Owner, pet: Pet):
-        self.date = date
+class Scheduler:
+    """The brain — retrieves, organizes, and manages tasks across all pets."""
+
+    def __init__(self, owner: Owner):
         self.owner = owner
-        self.pet = pet
-        self.task_list: list[Task] = []
-        self.total_duration: float = 0.0
 
-    def generate(self) -> None:
-        pass
+    def get_all_tasks(self) -> list[tuple[Pet, Task]]:
+        return self.owner.get_all_tasks()
 
-    def display(self) -> None:
-        pass
+    def get_tasks_by_priority(self, priority: str) -> list[tuple[Pet, Task]]:
+        return [(pet, task) for pet, task in self.get_all_tasks() if task.priority == priority]
 
-    def export_plan(self) -> None:
-        pass
+    def get_tasks_by_frequency(self, frequency: str) -> list[tuple[Pet, Task]]:
+        return [(pet, task) for pet, task in self.get_all_tasks() if task.frequency == frequency]
+
+    def get_pending_tasks(self) -> list[tuple[Pet, Task]]:
+        return [(pet, task) for pet, task in self.get_all_tasks() if not task.completed]
+
+    def get_completed_tasks(self) -> list[tuple[Pet, Task]]:
+        return [(pet, task) for pet, task in self.get_all_tasks() if task.completed]
+
+    def total_daily_minutes(self) -> float:
+        return sum(task.duration_minutes for _, task in self.get_tasks_by_frequency("daily"))
+
+    def fits_in_schedule(self) -> bool:
+        return self.total_daily_minutes() <= self.owner.time_available_per_day * 60
+
+    def display_schedule(self) -> None:
+        print(f"\n=== Schedule for {self.owner.name} ({date.today()}) ===")
+        for pet, task in self.get_pending_tasks():
+            status = "[x]" if task.completed else "[ ]"
+            print(f"  {status} [{pet.name}] {task.name} — {task.duration_minutes} min ({task.priority} priority, {task.frequency})")
+        daily_mins = self.total_daily_minutes()
+        available_mins = self.owner.time_available_per_day * 60
+        print(f"\nDaily tasks: {daily_mins} min / {available_mins:.0f} min available")

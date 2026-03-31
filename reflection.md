@@ -10,18 +10,71 @@
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
  - For a pet care app like PawPal, objects might be:
-    - Pet: 
-        - Attributes: name, specie, age, weight, health_notes
-        - Methods: getCareplan(), updateInfo()
-    - Owner:
-        - Attributes: name, email, time_available_per_day
-        - Methods: addPet(), removePet(), getSchedule()
-    - Schedule: 
-        - Attributes: date, owner, pet, task_list, total_duration
-        - Methods: generate(), display(), exportPlane()
     - Task:
-        - Attributes: name, category, duration_minutes, priority, frequency
+        - Attributes: name, category, duration_minutes, priority, frequency, completed
         - Methods: edit(), markComplete()
+    - Pet:
+        - Attributes: name, specie, age, weight, health_notes, tasks
+        - Methods: addTask(), getCareplan(), updateInfo()
+    - Owner:
+        - Attributes: name, email, time_available_per_day, pets
+        - Methods: addPet(), removePet(), getAllTasks()
+    - Scheduler:
+        - Attributes: owner
+        - Methods: getAllTasks(), getTasksByPriority(), getTasksByFrequency(), getPendingTasks(), getCompletedTasks(), totalDailyMinutes(), fitsInSchedule(), displaySchedule()
+
+```mermaid
+classDiagram
+    class Task {
+        +String name
+        +String category
+        +int duration_minutes
+        +String priority
+        +String frequency
+        +bool completed
+        +edit()
+        +markComplete()
+    }
+
+    class Pet {
+        +String name
+        +String specie
+        +int age
+        +float weight
+        +String health_notes
+        +List tasks
+        +addTask()
+        +getCareplan()
+        +updateInfo()
+    }
+
+    class Owner {
+        +String name
+        +String email
+        +float time_available_per_day
+        +List pets
+        +addPet()
+        +removePet()
+        +getAllTasks()
+    }
+
+    class Scheduler {
+        +Owner owner
+        +getAllTasks()
+        +getTasksByPriority()
+        +getTasksByFrequency()
+        +getPendingTasks()
+        +getCompletedTasks()
+        +totalDailyMinutes()
+        +fitsInSchedule()
+        +displaySchedule()
+    }
+
+    Owner "1" --> "0..*" Pet : owns
+    Pet "1" --> "0..*" Task : has
+    Scheduler "1" --> "1" Owner : manages
+```
+
 **b. Design changes**
 
 - Did your design change during implementation?
