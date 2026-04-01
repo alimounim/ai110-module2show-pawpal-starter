@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --yes @mermaid-js/mermaid-cli --version)",
+      "Bash(npx @mermaid-js/mermaid-cli mmdc -i uml_final.mmd -o uml_final.png -t default -b white --width 900)",
+      "Bash(npx @mermaid-js/mermaid-cli -i uml_final.mmd -o uml_final.png -t default -b white --width 900)"
+    ]
+  }
+}

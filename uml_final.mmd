@@ -1,0 +1,57 @@
+classDiagram
+    direction TB
+
+    class Task {
+        +str name
+        +str category
+        +int duration_minutes
+        +str priority
+        +str frequency
+        +bool completed
+        +str scheduled_time
+        +date|None last_completed_date
+        +edit(**kwargs) None
+        +mark_complete() None
+    }
+
+    class Pet {
+        +str name
+        +str specie
+        +int age
+        +float weight
+        +str health_notes
+        +list~Task~ tasks
+        +add_task(task: Task) None
+        +get_careplan() dict
+        +update_info(**kwargs) None
+    }
+
+    class Owner {
+        +str name
+        +str email
+        +float time_available_per_day
+        +list~Pet~ pets
+        +add_pet(pet: Pet) None
+        +remove_pet(pet: Pet) None
+        +get_all_tasks() list~tuple~
+    }
+
+    class Scheduler {
+        +Owner owner
+        +get_all_tasks() list~tuple~
+        +get_tasks_by_priority(priority: str) list~tuple~
+        +get_tasks_by_frequency(frequency: str) list~tuple~
+        +get_pending_tasks() list~tuple~
+        +get_completed_tasks() list~tuple~
+        +total_daily_minutes() float
+        +complete_task(pet, task) Task|None
+        +fits_in_schedule() bool
+        +sort_by_time() list~tuple~
+        +filter_tasks(pet_name, completed) list~tuple~
+        +get_conflicts() list~str~
+        +display_schedule() None
+    }
+
+    Pet "1" *-- "0..*" Task : contains
+    Owner "1" *-- "0..*" Pet : owns
+    Scheduler "1" --> "1" Owner : coordinates
