@@ -41,3 +41,13 @@ pip install -r requirements.txt
 5. Add tests to verify key behaviors.
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
+
+## Smarter Scheduling
+
+The `Scheduler` class goes beyond a simple task list with several intelligent features:
+
+- **Conflict detection** — `get_conflicts()` checks all pending tasks for overlapping time windows. Same-pet overlaps are flagged as `[HARD CONFLICT]` (one body, one owner); cross-pet overlaps are flagged as `[SOFT CONFLICT]` (potentially manageable).
+- **Time-sorted view** — `sort_by_time()` returns all tasks ordered by `scheduled_time` (HH:MM), making it easy to render a chronological daily plan.
+- **Flexible filtering** — `filter_tasks(pet_name, completed)` lets the UI show only a specific pet's tasks or only pending/completed items without fetching everything.
+- **Capacity check** — `fits_in_schedule()` compares the total minutes of all daily-frequency tasks against the owner's available hours, flagging over-scheduled days before they happen.
+- **Auto-recurrence** — `complete_task()` marks a task done and automatically enqueues a fresh copy for `daily` and `weekly` tasks, so recurring care never falls off the list.

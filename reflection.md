@@ -91,8 +91,9 @@ classDiagram
 
 **b. Tradeoffs**
 
-- Describe one tradeoff your scheduler makes.
-- Why is that tradeoff reasonable for this scenario?
+The scheduler detects conflicts using interval overlap (`start_a < end_b AND start_b < end_a`) rather than checking only exact start-time matches. This means a task starting at 08:00 for 30 minutes will correctly flag a conflict with a task starting at 08:15, even though their start times differ.
+
+The tradeoff is that `scheduled_time` is stored as a plain `"HH:MM"` string with no date component, so the scheduler has no awareness of which day a task falls on. A "weekly" task and a "daily" task that share the same time slot will always appear as a conflict even if the weekly task only runs on Sundays. For a single-owner pet care app operating within one day's view, this is a reasonable simplification — it errs on the side of over-warning rather than missing a real overlap, and keeps the conflict logic dependency-free (no calendar library required).
 
 ---
 
